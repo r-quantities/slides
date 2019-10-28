@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>units + errors = quantities</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Iñaki Úcar, postdoctoral fellow @ UC3M-Santander Big Data Institute (IBiDat)  Edzer Pebesma, full professor @ Institute for Geoinformatics, University of Münster" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="libs/metropolis.css" type="text/css" />
+    <link rel="stylesheet" href="libs/my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# units + errors = quantities
+## Quantity Calculus for R Vectors
+### <strong>Iñaki Úcar</strong>, postdoctoral fellow @ UC3M-Santander Big Data Institute (IBiDat) <br>Edzer Pebesma, full professor @ Institute for Geoinformatics, University of Münster
+### <br>November 15-16, 2019
+
+---
+
+
+
+
+# Quantity Calculus
+
+.pull-left[
+Two quotes from Cobb and Moore (1997):
+
+&gt; Data are not just numbers, they are numbers with a **context**.
+&gt; 
+&gt; In data analysis, context provides meaning.
+]
+
+--
+
+.pull-right[
+Examples of context in R:
+
+- Names of `data.frame` columns
+- Dimensions of an array
+- Levels of `factor`
+- Time-related objects `POSIXt`, `Date`, `difftime`...
+]
+
+--
+
+.pull-left[
+&lt;br&gt;
+
+From the International Vocabulary of Metrology (VIM):
+
+&gt; [A **quantity** is] a property of a phenomenon, body, or substance, where the property has a magnitude that can be expressed as a number and a reference.
+]
+
+--
+
+.pull-right[
+&lt;br&gt;
+
+`$$\LARGE \overbrace{10.45}^{\text{value}} \overbrace{\underbrace{\pm \quad 0.03}_{\text{uncertainty}} \quad \underbrace{\text{km}}_{\text{unit}}}^{\text{context}}$$`
+]
+
+---
+
+# units
+
+.footnote[
+[1] Pebesma E, Mailund T, Hiebert J (2016). "Measurement Units in R." _R Journal_, 8(2), 486-494. doi: 10.32614/RJ-2016-061.
+]
+
+.pull-left[
+The `units` package [1]: 
+
+- Support for measurement units in R vectors and arrays
+- Automatic propagation, conversion, simplification
+- Raising errors in case of unit incompatibility
+- Compatible with the POSIXct, Date and difftime classes
+- Uses Unidata's `UDUNITS-2` library and database
+]
+
+--
+
+.pull-right[
+
+
+```r
+library(units)
+
+x &lt;- set_units(rnorm(3), m)
+y &lt;- set_units(rnorm(3), s)
+sum(x)
+```
+
+```
+## 1.169389 [m]
+```
+
+```r
+x / y
+```
+
+```
+## Units: [m/s]
+## [1]  2.166281 -1.396840 -3.421720
+```
+
+```r
+x + y
+```
+
+```
+## Error: cannot convert s into m
+```
+]
+
+--
+
+.pull-left[
+Specifics:
+
+- S3 implementation
+- Group Generics `Math`, `Ops`, `Summary` and more
+- `?units_options` controls printing, parsing, autoconversion and simplification
+- Installation of new units
+]
+
+---
+
+# errors
+
+.footnote[
+[1] **Ucar I**, Pebesma E, Azcorra A (2018). "Measurement Errors in R." _R Journal_, 10(2), 549-557. doi: 10.32614/RJ-2018-075.
+]
+
+.pull-left[
+The `errors` package [1]:
+
+- Support for uncertainties in R vectors and arrays
+- Automatic propagation (first-order TSM, as recommended by BIPM's GUM)
+- Pretty printing (also following BIPM's GUM)
+]
+
+--
+
+.pull-right[
+
+
+```r
+library(errors)
+
+x &lt;- set_errors(rnorm(3), 0.1)
+y &lt;- set_errors(rnorm(3), 0.1)
+sum(x)
+```
+
+```
+## 1.2(2)
+```
+
+```r
+print(sum(x), notation="plus-minus", digits=2)
+```
+
+```
+## 1.17 ± 0.17
+```
+
+```r
+x / y
+```
+
+```
+## Errors: 0.3770097 0.4249392 3.3591220
+## [1]  2.166281 -1.396840 -3.421720
+```
+]
+
+--
+
+.pull-left[
+Specifics:
+
+- S3 implementation
+- Correlations/covariances across objects
+- Group Generics `Math`, `Ops`, `Summary` and more
+- Options for printing control, by default
+  - `errors.notation = "parenthesis"`
+  - `errors.digits = 1`
+]
+
+---
+
+# quantities
+
+.footnote[
+[1] R-Quantities organization on GitHub: https://github.com/r-quantities/
+&lt;br&gt;[2] Announcement: https://www.r-consortium.org/announcement/2018/02/22/announcing-second-round-isc-funded-projects-2017
+]
+
+.pull-left[
+The `quantities` framework [1]:
+
+- Project funded by the R Consortium [2]
+- Integrates `units` and `errors`
+- Complete Quantity Calculus system for R
+]
+
+--
+
+.pull-right[
+
+
+```r
+library(quantities)
+
+x &lt;- set_quantities(rnorm(3), m, 0.1)
+y &lt;- set_quantities(rnorm(3), s, 0.1)
+sum(x)
+```
+
+```
+## 1.2(2) [m]
+```
+
+```r
+x / y
+```
+
+```
+## Units: [m/s]
+## Errors: 0.3770097 0.4249392 3.3591220
+## [1]  2.166281 -1.396840 -3.421720
+```
+
+```r
+x + y
+```
+
+```
+## Error: cannot convert s into m
+```
+]
+
+--
+
+.pull-left[
+Specifics:
+
+- S3 implementation as a super-class
+- Again, Group Generics and other stuff
+- Support all conversions, resolve conflicts
+- Data wrangling guide (see vignette)
+- Parsers (see vignette)
+]
+
+---
+
+# Example: a physics experiment
+
+.pull-left[
+
+## Surface tension in liquids
+
+![](img/laser.jpg)
+
+- Dispersion relation for capillary waves
+
+`$$w^2 = \frac{\sigma}{\rho}|k|^3, \quad k = \frac{\pi}{n\lambda}\frac{c_n}{a}\sin\left(\frac{b}{a}\right)$$`
+
+
+```r
+str(df)
+```
+
+```
+## 'data.frame':	65 obs. of  3 variables:
+##  $ f  : num  100 110 120 130 140 150 160 170 180 190 ...
+##  $ n  : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ c_n: num  11 12 13 13 14 15 16 16 17 17 ...
+```
+]
+
+--
+
+.pull-right[
+
+```r
+library(quantities)
+
+a &lt;- set_quantities(3095, mm, 10)
+b &lt;- set_quantities(414+116-203, mm, 1+1+3)
+l &lt;- set_quantities(633, nm, 0)
+
+df &lt;- within(df, {
+  f &lt;- set_quantities(f, Hz, 1)
+  c_n &lt;- set_quantities(c_n, mm, 1)
+  
+* w2 &lt;- set_units(2 * pi * f, rad/s)^2
+* k3 &lt;- set_units(
+*   (pi/l/n) * (c_n/a) * sin(set_units(b/a, rad)),
+*   rad/mm)^3
+})
+head(df[, c("w2", "k3")], 3)
+```
+
+```
+##                      w2                 k3
+## 1 3.95(8)e5 [rad^2/s^2]  6(2) [rad^3/mm^3]
+## 2 4.78(9)e5 [rad^2/s^2]  8(2) [rad^3/mm^3]
+## 3 5.68(9)e5 [rad^2/s^2] 11(3) [rad^3/mm^3]
+```
+]
+
+---
+
+# Example: a physics experiment
+
+.pull-left[
+
+```r
+library(ggplot2)
+*library(ggforce)
+
+ggplot(df) + aes(k3, w2) +
+  geom_errorbar(
+*   aes(ymin=errors_min(w2), ymax=errors_max(w2))) +
+  geom_errorbarh(
+*   aes(xmin=errors_min(k3), xmax=errors_max(k3))) +
+  geom_point() + geom_smooth(method="lm")
+```
+]
+
+.pull-right[
+&lt;img src="img/figure-html/dispersion-relation-1.png" width="504" /&gt;
+]
+
+--
+
+.pull-left[
+.footnote[
+[1] See https://www.r-spatial.org/r/2018/08/31/quantities-final.html#fitting-linear-models-with-quantities
+]
+
+Measure the surface tension:
+
+
+
+
+```r
+fit &lt;- qlm(w2 ~ k3, df) # [1]
+rho &lt;- set_quantities(997, kg/m^3, 1)
+sigma &lt;- coef(fit)$k3 * rho
+set_units(sigma, dyne/cm)
+```
+
+```
+## 61.2(6) [dyne/cm]
+```
+]
+
+---
+
+# Summary
+
+&lt;br&gt;
+
+.font130[
+- Transparent (almost) support for quantity calculus (i.e., computations with context) in R
+
+  - Assign units and/uncertainty metadata and go
+  - Automatic propagation, conversion, simplification and reporting
+]
+
+--
+
+.font130[
+- Published in the R Journal [1, 2], following BIPM's recommendations
+]
+
+.footnote[
+[1] Pebesma E, Mailund T, Hiebert J (2016). "Measurement Units in R." _R Journal_, 8(2), 486-494. doi: 10.32614/RJ-2016-061.&lt;br&gt;
+[2] **Ucar I**, Pebesma E, Azcorra A (2018). "Measurement Errors in R." _R Journal_, 10(2), 549-557. doi: 10.32614/RJ-2018-075.
+]
+
+--
+
+.font130[
+- `units` (reference) and `errors` (uncertainty) developed in separate packages
+
+- Integrated within the `quantities` framework
+]
+
+---
+class: center, middle, inverse, mline
+
+# Thanks!
+
+**https://github.com/r-quantities**
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+&lt;div class="hexagon" style="bottom:0;left:7px"&gt;&lt;/div&gt;
+&lt;div class="hexagon" style="bottom:0;left:143px"&gt;&lt;/div&gt;
+&lt;div class="hexagon" style="bottom:0;left:279px"&gt;&lt;/div&gt;
+&lt;div class="hexagon" style="bottom:0;left:415px"&gt;&lt;/div&gt;
+&lt;div class="hexagon" style="bottom:0;left:551px"&gt;&lt;/div&gt;
+
+&lt;div class="hexagon" style="bottom:118px;left:75px"&gt;&lt;/div&gt;
+&lt;div style="position:absolute;bottom:150px;left:233px;width:85px;filter:drop-shadow(2px 4px 6px black)"&gt;![:scale 100%](img/quantities.png)&lt;/div&gt;
+&lt;div class="hexagon" style="bottom:118px;left:347px"&gt;&lt;/div&gt;
+
+&lt;div class="hexagon" style="bottom:236px;left:143px"&gt;&lt;/div&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="libs/macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
