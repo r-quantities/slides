@@ -243,10 +243,10 @@ df <- within(df, {
   f <- set_quantities(f, Hz, 1)
   c_n <- set_quantities(c_n, mm, 1)
   
-  w2 <- set_units(2 * pi * f, rad/s)^2             #<<
-  k3 <- set_units(                                 #<<
-    (pi/l/n) * (c_n/a) * sin(set_units(b/a, rad)), #<<
-    rad/mm)^3                                      #<<
+  w2 <- set_units(2 * pi * f, rad/s)^2          #<<
+  k3 <- set_units(                              #<<
+    pi/l/n * c_n/a * sin(set_units(b/a, rad)),  #<<
+    rad/mm)^3                                   #<<
 })
 head(df[, c("w2", "k3")], 3)
 ```
@@ -319,15 +319,11 @@ coef.qlm <- function(object, ...) {
 }
 ```
 
-```{r, eval=FALSE}
+```{r}
 fit <- qlm(w2 ~ k3, df) # [1]
 rho <- set_quantities(997, kg/m^3, 1)
 sigma <- coef(fit)$k3 * rho
 set_units(sigma, dyne/cm)
-```
-
-```
-## 61.2(6) [dyne/cm]
 ```
 ]
 

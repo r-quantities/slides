@@ -299,7 +299,7 @@ df &lt;- within(df, {
   
 * w2 &lt;- set_units(2 * pi * f, rad/s)^2
 * k3 &lt;- set_units(
-*   (pi/l/n) * (c_n/a) * sin(set_units(b/a, rad)),
+*   pi/l/n * c_n/a * sin(set_units(b/a, rad)),
 *   rad/mm)^3
 })
 head(df[, c("w2", "k3")], 3)
